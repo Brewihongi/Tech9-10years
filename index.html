@@ -1,25 +1,27 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>10 Year Celebration Photo Overlay</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
       text-align: center;
-      padding: 40px 20px;
+      padding: 20px;
       background: #ffffff;
       color: #111;
     }
     canvas {
-      max-width: 100%;
+      width: 100%;
+      max-width: 500px;
+      height: auto;
       margin-top: 20px;
       border: 1px solid #ddd;
       border-radius: 8px;
     }
     #downloadBtn {
-      margin-top: 30px;
+      margin-top: 20px;
       padding: 14px 28px;
       font-size: 18px;
       background-color: #000000;
@@ -27,7 +29,6 @@
       border: none;
       border-radius: 8px;
       cursor: pointer;
-      transition: background 0.3s ease;
     }
     #downloadBtn:disabled {
       background-color: #888888;
@@ -39,11 +40,9 @@
     }
     h1 {
       font-size: 28px;
-      margin-bottom: 10px;
     }
     p {
       font-size: 18px;
-      margin-bottom: 20px;
     }
   </style>
 </head>
@@ -59,7 +58,6 @@
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
     const downloadBtn = document.getElementById('downloadBtn');
-
     const overlay = new Image();
     overlay.src = 'overlay.png';
 
@@ -72,15 +70,25 @@
         const img = new Image();
         img.onload = function() {
           ctx.clearRect(0, 0, canvas.width, canvas.height);
-          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
-          overlay.onload = () => {
-            ctx.drawImage(overlay, 0, 0, canvas.width, canvas.height);
-            downloadBtn.disabled = false;
-          };
+          // Scale the uploaded image to cover the canvas without stretching
+          const scale = Math.max(canvas.width / img.width, canvas.height / img.height);
+          const newWidth = img.width * scale;
+          const newHeight = img.height * scale;
+          const offsetX = (canvas.width - newWidth) / 2;
+          const offsetY = (canvas.height - newHeight) / 2;
+
+          ctx.drawImage(img, offsetX, offsetY, newWidth, newHeight);
+
+          // Draw overlay
           if (overlay.complete) {
             ctx.drawImage(overlay, 0, 0, canvas.width, canvas.height);
             downloadBtn.disabled = false;
+          } else {
+            overlay.onload = () => {
+              ctx.drawImage(overlay, 0, 0, canvas.width, canvas.height);
+              downloadBtn.disabled = false;
+            };
           }
         };
         img.src = evt.target.result;
