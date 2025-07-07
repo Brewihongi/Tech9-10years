@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>10 Year Celebration Photo Overlay</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      text-align: center;
+      padding: 40px 20px;
+      background: #ffffff;
+      color: #111;
+    }
+    canvas {
+      max-width: 100%;
+      margin-top: 20px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+    }
+    #downloadBtn {
+      margin-top: 30px;
+      padding: 14px 28px;
+      font-size: 18px;
+      background-color: #000000;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+    #downloadBtn:disabled {
+      background-color: #888888;
+      cursor: not-allowed;
+    }
+    input[type="file"] {
+      margin-top: 20px;
+      font-size: 16px;
+    }
+    h1 {
+      font-size: 28px;
+      margin-bottom: 10px;
+    }
+    p {
+      font-size: 18px;
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>📸 Celebrate 10 Years with Us!</h1>
+  <p>Upload a photo and download it with our anniversary overlay.</p>
+  <input type="file" id="upload" accept="image/png, image/jpeg"><br>
+  <canvas id="canvas" width="2048" height="2048"></canvas><br>
+  <button id="downloadBtn" disabled>Download Your Photo</button>
+
+  <script>
+    const upload = document.getElementById('upload');
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const downloadBtn = document.getElementById('downloadBtn');
+
+    const overlay = new Image();
+    overlay.src = 'overlay.png';
+
+    upload.addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        const img = new Image();
+        img.onload = function() {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+          overlay.onload = () => {
+            ctx.drawImage(overlay, 0, 0, canvas.width, canvas.height);
+            downloadBtn.disabled = false;
+          };
+          if (overlay.complete) {
+            ctx.drawImage(overlay, 0, 0, canvas.width, canvas.height);
+            downloadBtn.disabled = false;
+          }
+        };
+        img.src = evt.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+
+    downloadBtn.addEventListener('click', function() {
+      const link = document.createElement('a');
+      link.download = '10-year-photo.png';
+      link.href = canvas.toDataURL();
+      link.click();
+    });
+  </script>
+</body>
+</html>
